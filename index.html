@@ -186,7 +186,7 @@
       position: fixed;
       left: 14px;
       bottom: 14px;
-      padding: 12px 14px;
+      padding: 14px 16px;
       border-radius: 16px;
       border: 1px solid var(--stroke);
       background: linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.08));
@@ -194,8 +194,16 @@
       backdrop-filter: blur(12px);
       z-index: 10;
       display:flex;
+      flex-direction: column;
+      gap: 12px;
+      align-items: stretch;
+      min-width: 280px;
+    }
+    .brandRow{
+      display:flex;
       gap: 14px;
       align-items:center;
+      justify-content: flex-start;
     }
     #brandDock img{
       height: 34px;
@@ -203,6 +211,20 @@
       pointer-events:none;
       opacity: 0.96;
       filter: drop-shadow(0 10px 22px rgba(0,0,0,.45));
+    }
+    #btnProductDetails{
+      background: rgba(77,215,255,.16);
+      color: var(--text);
+      border: 1px solid rgba(77,215,255,.40);
+      padding: 10px 12px;
+      border-radius: 12px;
+      cursor:pointer;
+      font: 800 13px/1 system-ui;
+      letter-spacing:.2px;
+      width: 100%;
+    }
+    #btnProductDetails:hover{
+      background: rgba(77,215,255,.24);
     }
 
     /* Avoid collisions on small screens */
@@ -258,10 +280,13 @@
     </div>
 
     <!-- Bottom-left brand dock (toast removed) -->
-    <div id="brandDock" aria-label="Brand logos">
-      <!-- Put your logo image files in repo root with these names -->
-      <img id="brandHPE" src="hpe.png" alt="HPE logo" />
-      <img id="brandAIonOS" src="aionos.png" alt="AIonOS logo" />
+    <div id="brandDock" aria-label="Brand logos and actions">
+      <div class="brandRow">
+        <!-- Put your logo image files in repo root with these names -->
+        <img id="brandHPE" src="hpe.png" alt="HPE logo" />
+        <img id="brandAIonOS" src="aionos.png" alt="AIonOS logo" />
+      </div>
+      <button id="btnProductDetails" type="button">Product Details</button>
     </div>
 
     <div id="map"></div>
@@ -270,5 +295,10 @@
   <script src="https://unpkg.com/maplibre-gl@3.6.1/dist/maplibre-gl.js"></script>
   <script src="https://unpkg.com/@turf/turf@6.5.0/turf.min.js"></script>
   <script src="script.js"></script>
+  <script>
+    document.getElementById("btnProductDetails")?.addEventListener("click", () => {
+      window.location.href = "product-details.html";
+    });
+  </script>
 </body>
 </html>
