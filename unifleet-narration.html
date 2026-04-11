@@ -192,13 +192,52 @@
       <div class="actions">
         <button id="btnReplay">🔊 Replay narration</button>
         <button id="btnMute" class="secondary">🔇 Mute</button>
+        <a id="btnDataFlow" href="unifleet-narration.html?view=DataFlow">DataFlow</a>
+        <a id="btnFunctional" href="unifleet-narration.html?view=Functional">Functional</a>
+        <a id="btnFrameWorks" href="unifleet-narration.html?view=FrameWorks">FrameWorks</a>
+        <a id="btnHardware" href="unifleet-narration.html?view=Hardware">Hardware</a>
         <a id="btnBackToNetwork" href="index.html">← Back to Network View</a>
       </div>
     </main>
   </div>
 
   <script>
-    const narrationText = "Today’s supply chains face constant disruption — from ocean route volatility to last-mile congestion and unpredictable demand spikes. UniFleet addresses this with an agentic twin planner that analyzes, simulates, and optimizes logistics decisions in real time. Powered by HPE infrastructure — including HPE Private Cloud AI, HPE Data Fabric, and GreenLake — UniFleet unifies data from fleets, warehouses, and enterprise systems into a live operational graph. The platform predicts demand surges with over 92% accuracy, autonomously reroutes disruptions within seconds, and continuously learns from outcomes. The result is a resilient, self-optimizing supply chain capable of running thousands of simulations every week while keeping network uptime above 99%. UniFleet and HPE together bring autonomous intelligence to global supply chain planning.";
+    const viewConfig = {
+      default: {
+        narrationText: "Today’s supply chains face constant disruption — from ocean route volatility to last-mile congestion and unpredictable demand spikes. UniFleet addresses this with an agentic twin planner that analyzes, simulates, and optimizes logistics decisions in real time. Powered by HPE infrastructure — including HPE Private Cloud AI, HPE Data Fabric, and GreenLake — UniFleet unifies data from fleets, warehouses, and enterprise systems into a live operational graph. The platform predicts demand surges with over 92% accuracy, autonomously reroutes disruptions within seconds, and continuously learns from outcomes. The result is a resilient, self-optimizing supply chain capable of running thousands of simulations every week while keeping network uptime above 99%. UniFleet and HPE together bring autonomous intelligence to global supply chain planning.",
+        mediaType: 'video',
+        mediaSource: 'Global Airlines.mp4',
+        mediaLabel: 'Global Airlines narration video'
+      },
+      DataFlow: {
+        narrationText: "UniFleet’s dataflow architecture is built in partnership with HPE to create a resilient, AI-driven supply chain platform. Data from ERP and TMS systems, telematics devices, and operational feeds enters through the HPE GreenLake front door, where it streams through secure APIs and service pipelines. Within HPE Private Cloud AI, NVIDIA-accelerated compute powers real-time inference, fine-tuning, and RAG-based intelligence. Event hubs and streaming services process fleet telemetry and logistics signals, while HPE Data Fabric unifies these streams into a hybrid data platform across regions. Machine learning models continuously analyze disruptions, simulate scenarios, and trigger autonomous decisions. Finally, insights flow to dashboards, applications, and model registries, enabling planners to visualize, optimize, and orchestrate supply chains in real time — all powered by HPE’s distributed cloud infrastructure.",
+        mediaType: 'image',
+        mediaSource: 'DataFlow.png',
+        mediaLabel: 'DataFlow architecture visual'
+      },
+      Functional: {
+        narrationText: "UniFleet operates as an intelligent AI agent built on HPE’s enterprise AI infrastructure. At the top, questions from users and operational data from ERP, TMS, telematics, and IoT systems enter through adapters, APIs, event streams, and enterprise connectors. These inputs are unified through HPE Data Fabric, creating a hybrid data layer that organizes files, objects, and streaming data across the enterprise. At the core, the UniFleet AI Agent executes a Retrieve–Reason–Respond workflow using an AI model chain orchestrated by LLM orchestration, APIs, and RAG pipelines. When actions are required, the agent calls enterprise tools, functions, and cloud APIs. All of this runs on HPE Private Cloud AI powered by NVIDIA accelerated GPUs, delivered through HPE GreenLake with built-in logging, security, and compliance — enabling UniFleet to autonomously analyze, plan, and optimize logistics operations in real time.",
+        mediaType: 'image',
+        mediaSource: 'Functional.png',
+        mediaLabel: 'Functional architecture visual'
+      },
+      FrameWorks: {
+        narrationText: "UniFleet is built as an enterprise AI agent on top of HPE’s AI infrastructure and an open ecosystem of AI frameworks. At its core, the UniFleet AI Agent orchestrates data intelligence through retrieval, reasoning, and action layers. The foundational platform is powered by HPE GreenLake and HPE Data Fabric, providing a unified hybrid data environment for governance, security, and monitoring. On the compute layer, HPE Private Cloud AI integrates NVIDIA DGX accelerated infrastructure to support large-scale model training, fine-tuning, and inference. Around this core, UniFleet leverages leading AI frameworks including TensorFlow, PyTorch, and Meta AI models, along with orchestration tools like Kafka, Airflow, and Databricks. Enterprise analytics platforms such as Snowflake, Elastic, Power BI, and Tableau deliver insights. Together, this HPE-anchored ecosystem enables UniFleet to operate as a scalable, enterprise-grade autonomous supply chain intelligence platform.",
+        mediaType: 'image',
+        mediaSource: 'FrameWorks.png',
+        mediaLabel: 'Frameworks ecosystem visual'
+      },
+      Hardware: {
+        narrationText: "UniFleet runs on a high-performance AI infrastructure built in partnership with HPE. At the core are HPE ProLiant compute servers and HPE Apollo 6500 systems that power the UniFleet AI Agent. These systems are integrated with HPE Private Cloud AI and accelerated by NVIDIA A100 and H100 GPUs, enabling large-scale model training, simulation, and real-time inference. Data is stored and processed through HPE Alletra NVMe petascale storage, ensuring high-throughput access for massive logistics datasets. The entire platform operates within HPE GreenLake, which provides unified hybrid infrastructure management, security, and orchestration. High-speed Aruba networking, WAN fiber systems, and edge devices connect fleets, IoT sensors, and operational systems to the platform. Together, this HPE-led hardware ecosystem provides the compute power, storage performance, and network resilience required for UniFleet’s autonomous supply chain intelligence.",
+        mediaType: 'image',
+        mediaSource: 'Hardware.png',
+        mediaLabel: 'Hardware infrastructure visual'
+      }
+    };
+
+    const selectedView = new URLSearchParams(window.location.search).get('view');
+    const currentView = viewConfig[selectedView] || viewConfig.default;
+    const narrationText = currentView.narrationText;
     const narrationGreetingText = "Hello Everyone, Welcome.";
     const narrationSpeechText = `${narrationGreetingText} ${narrationText}`.replace(/\bHPE\b/g, 'H P E');
 
@@ -208,7 +247,7 @@
     const btnBackToNetwork = document.getElementById('btnBackToNetwork');
 
     let muted = false;
-    let narrationVideo = null;
+    let narrationVisual = null;
     let narrationContent = null;
     let narrationLayout = null;
 
@@ -229,19 +268,28 @@
       narrationEl.style.setProperty('--narration-max-height', `${measured}px`);
     }
 
-    function showNarrationVideo(){
-      if (!narrationVideo){
-        narrationVideo = document.createElement('video');
-        narrationVideo.className = 'narration-video';
-        narrationVideo.src = 'Global Airlines.mp4';
-        narrationVideo.autoplay = true;
-        narrationVideo.muted = true;
-        narrationVideo.loop = true;
-        narrationVideo.preload = 'auto';
-        narrationVideo.playsInline = true;
-        narrationVideo.setAttribute('webkit-playsinline', 'true');
-        narrationVideo.controls = false;
-        narrationVideo.setAttribute('aria-label', 'Global Airlines narration video');
+    function showNarrationVisual(){
+      if (!narrationVisual){
+        if (currentView.mediaType === 'image'){
+          narrationVisual = document.createElement('img');
+          narrationVisual.className = 'narration-video';
+          narrationVisual.alt = currentView.mediaLabel;
+          narrationVisual.src = currentView.mediaSource;
+          narrationVisual.loading = 'eager';
+          narrationVisual.decoding = 'async';
+        } else {
+          narrationVisual = document.createElement('video');
+          narrationVisual.className = 'narration-video';
+          narrationVisual.src = currentView.mediaSource;
+          narrationVisual.autoplay = true;
+          narrationVisual.muted = true;
+          narrationVisual.loop = true;
+          narrationVisual.preload = 'auto';
+          narrationVisual.playsInline = true;
+          narrationVisual.setAttribute('webkit-playsinline', 'true');
+          narrationVisual.controls = false;
+          narrationVisual.setAttribute('aria-label', currentView.mediaLabel);
+        }
       }
       if (!narrationContent){
         narrationContent = document.createElement('div');
@@ -252,14 +300,35 @@
         narrationLayout = document.createElement('div');
         narrationLayout.className = 'narration-layout';
       }
-      narrationLayout.replaceChildren(narrationVideo, narrationContent);
+      narrationLayout.replaceChildren(narrationVisual, narrationContent);
       narrationEl.replaceChildren(narrationLayout);
-      narrationVideo.currentTime = 0;
-      narrationVideo.load();
-      narrationVideo.play().catch(() => {
-        narrationVideo.addEventListener('canplay', () => {
-          narrationVideo.play().catch(() => {});
-        }, { once:true });
+      if (narrationVisual instanceof HTMLVideoElement){
+        narrationVisual.currentTime = 0;
+        narrationVisual.load();
+        narrationVisual.play().catch(() => {
+          narrationVisual.addEventListener('canplay', () => {
+            narrationVisual.play().catch(() => {});
+          }, { once:true });
+        });
+      }
+    }
+
+    function updateActiveButtons(){
+      const navButtons = [
+        ['DataFlow', document.getElementById('btnDataFlow')],
+        ['Functional', document.getElementById('btnFunctional')],
+        ['FrameWorks', document.getElementById('btnFrameWorks')],
+        ['Hardware', document.getElementById('btnHardware')]
+      ];
+      navButtons.forEach(([name, el]) => {
+        if (!el) return;
+        if (selectedView === name){
+          el.classList.add('secondary');
+          el.setAttribute('aria-current', 'page');
+        } else {
+          el.classList.remove('secondary');
+          el.removeAttribute('aria-current');
+        }
       });
     }
 
@@ -278,7 +347,7 @@
     }
 
     function replay(){
-      showNarrationVideo();
+      showNarrationVisual();
       speakNarration();
     }
 
@@ -291,11 +360,11 @@
     });
     btnBackToNetwork.addEventListener('click', () => {
       window.speechSynthesis?.cancel();
-      narrationVideo?.pause();
+      narrationVisual?.pause?.();
     });
     window.addEventListener('pagehide', () => {
       window.speechSynthesis?.cancel();
-      narrationVideo?.pause();
+      narrationVisual?.pause?.();
     });
 
     function addNetworkVisuals(){
@@ -342,6 +411,7 @@
     }
 
     addNetworkVisuals();
+    updateActiveButtons();
     measureNarrationMaxHeight();
     window.addEventListener('resize', measureNarrationMaxHeight);
     setTimeout(replay, 450);
