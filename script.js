@@ -160,17 +160,17 @@ function unlockNarrationOnce(){
 function chooseVoice(){
   const voices = (synth && synth.getVoices) ? synth.getVoices() : [];
   if (!voices || !voices.length) return null;
-  const femaleHints = /(female|woman|zira|hazel|susan|sophie|serena|libby|aria|emma|amy|google uk english female)/i;
+  const maleHints = /(male|man|david|mark|daniel|george|james|alex|tom|fred|google uk english male)/i;
   const britishHints = /(en-gb|british|uk|england|great britain)/i;
 
-  const britishFemale = voices.find(v => britishHints.test(v.lang) && femaleHints.test(`${v.name} ${v.voiceURI}`));
-  if (britishFemale) return britishFemale;
+  const britishMale = voices.find(v => britishHints.test(v.lang) && maleHints.test(`${v.name} ${v.voiceURI}`));
+  if (britishMale) return britishMale;
 
   const britishAny = voices.find(v => britishHints.test(v.lang) || /en-GB/i.test(v.lang));
   if (britishAny) return britishAny;
 
-  const englishFemale = voices.find(v => /en-|English/i.test(v.lang) && femaleHints.test(`${v.name} ${v.voiceURI}`));
-  if (englishFemale) return englishFemale;
+  const englishMale = voices.find(v => /en-|English/i.test(v.lang) && maleHints.test(`${v.name} ${v.voiceURI}`));
+  if (englishMale) return englishMale;
 
   return voices.find(v => /en-|English/i.test(v.lang)) || voices[0];
 }
