@@ -338,20 +338,45 @@
       });
     }
 
+    let preferredVoice = null;
+    let pendingNarration = false;
+    function pickNarrationVoice(){
+      if (!('speechSynthesis' in window)) return null;
+      const voices = window.speechSynthesis.getVoices();
+      if (!voices.length) return null;
+      const femaleHints = /(female|woman|zira|hazel|susan|sophie|serena|libby|aria|emma|amy|samantha|victoria|ava|nova|fable|wavenet-c|wavenet-e|journey-f|neural2-f|en-us-standard-c|en-gb-standard-a|google uk english female)/i;
+      const maleHints = /(male|man|david|mark|daniel|george|james|alex|tom|fred|liam|ryan|arthur|wavenet-b|wavenet-d|journey-d|neural2-d|en-us-standard-d|en-gb-standard-b|google uk english male)/i;
+      return voices.find(v => /en-US|English/i.test(v.lang) && femaleHints.test(`${v.name} ${v.voiceURI}`))
+        || voices.find(v => /en-US|English/i.test(v.lang) && !maleHints.test(`${v.name} ${v.voiceURI}`))
+        || voices.find(v => /en-US|English/i.test(v.lang))
+        || voices[0];
+    }
+
     function speakNarration(){
       if (!('speechSynthesis' in window)) return;
       window.speechSynthesis.cancel();
       if (muted) return;
+      if (!preferredVoice) preferredVoice = pickNarrationVoice();
+      if (!preferredVoice){
+        pendingNarration = true;
+        return;
+      }
       const utter = new SpeechSynthesisUtterance(narrationSpeechText);
       utter.rate = 0.95;
       utter.pitch = 1;
       utter.lang = 'en-US';
-      const voices = window.speechSynthesis.getVoices();
-      const femaleHints = /(female|woman|zira|hazel|susan|sophie|serena|libby|aria|emma|amy|samantha|victoria|google uk english female)/i;
-      const preferred = voices.find(v => /en-US|English/i.test(v.lang) && femaleHints.test(`${v.name} ${v.voiceURI}`))
-        || voices.find(v => /en-US|English/i.test(v.lang));
-      if (preferred) utter.voice = preferred;
+      utter.voice = preferredVoice;
       window.speechSynthesis.speak(utter);
+    }
+
+    if ('speechSynthesis' in window){
+      window.speechSynthesis.onvoiceschanged = () => {
+        if (!preferredVoice) preferredVoice = pickNarrationVoice();
+        if (pendingNarration && !muted){
+          pendingNarration = false;
+          speakNarration();
+        }
+      };
     }
 
     function replay(){
