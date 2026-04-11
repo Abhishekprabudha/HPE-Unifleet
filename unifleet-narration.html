@@ -347,7 +347,9 @@
       utter.pitch = 1;
       utter.lang = 'en-US';
       const voices = window.speechSynthesis.getVoices();
-      const preferred = voices.find(v => /en-US|English/i.test(v.lang));
+      const femaleHints = /(female|woman|zira|hazel|susan|sophie|serena|libby|aria|emma|amy|samantha|victoria|google uk english female)/i;
+      const preferred = voices.find(v => /en-US|English/i.test(v.lang) && femaleHints.test(`${v.name} ${v.voiceURI}`))
+        || voices.find(v => /en-US|English/i.test(v.lang));
       if (preferred) utter.voice = preferred;
       window.speechSynthesis.speak(utter);
     }
