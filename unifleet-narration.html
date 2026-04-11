@@ -20,7 +20,7 @@
     body{
       font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
       color:var(--text);
-      overflow:hidden;
+      overflow:auto;
       background:
         radial-gradient(1100px 700px at 20% 12%, rgba(77,215,255,.14), transparent 60%),
         radial-gradient(900px 560px at 88% 32%, rgba(0,208,138,.10), transparent 60%),
@@ -83,6 +83,10 @@
       background:linear-gradient(180deg, rgba(255,255,255,.13), rgba(255,255,255,.06));
       box-shadow:var(--shadow);
       backdrop-filter:blur(12px);
+      max-height:calc(100vh - 56px);
+      display:flex;
+      flex-direction:column;
+      overflow:auto;
     }
     h1{ margin:0 0 8px; font-size:clamp(30px,4vw,44px); letter-spacing:.2px; }
     .sub{ color:var(--muted); margin:0 0 18px; font-size:15px; }
@@ -97,7 +101,7 @@
       display:flex;
       align-items:center;
       justify-content:center;
-      overflow:hidden;
+      overflow:auto;
     }
     .narration-layout{
       width:100%;
@@ -145,7 +149,7 @@
     .card:nth-child(4){ animation-delay:.75s; }
     .label{ color:var(--muted); font-size:12px; text-transform:uppercase; letter-spacing:.8px; }
     .value{ font-size:24px; font-weight:900; margin-top:4px; }
-    .actions{ margin-top:16px; display:flex; gap:10px; flex-wrap:wrap; }
+    .actions{ margin-top:16px; display:flex; gap:10px; flex-wrap:wrap; position:sticky; bottom:0; padding-top:10px; background:linear-gradient(180deg, rgba(12,29,63,0), rgba(12,29,63,.9) 40%); }
     button,a{
       border:1px solid rgba(77,215,255,.45);
       background:rgba(77,215,255,.16);
@@ -264,8 +268,10 @@
       probe.textContent = narrationText;
       narrationEl.appendChild(probe);
       const measured = Math.max(138, Math.ceil(probe.scrollHeight + 32));
+      const viewportCap = Math.floor(window.innerHeight * 0.42);
+      const maxHeight = Math.max(138, Math.min(measured, viewportCap));
       probe.remove();
-      narrationEl.style.setProperty('--narration-max-height', `${measured}px`);
+      narrationEl.style.setProperty('--narration-max-height', `${maxHeight}px`);
     }
 
     function showNarrationVisual(){
