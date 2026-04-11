@@ -160,6 +160,18 @@ function unlockNarrationOnce(){
 function chooseVoice(){
   const voices = (synth && synth.getVoices) ? synth.getVoices() : [];
   if (!voices || !voices.length) return null;
+  const femaleHints = /(female|woman|zira|hazel|susan|sophie|serena|libby|aria|emma|amy|google uk english female)/i;
+  const britishHints = /(en-gb|british|uk|england|great britain)/i;
+
+  const britishFemale = voices.find(v => britishHints.test(v.lang) && femaleHints.test(`${v.name} ${v.voiceURI}`));
+  if (britishFemale) return britishFemale;
+
+  const britishAny = voices.find(v => britishHints.test(v.lang) || /en-GB/i.test(v.lang));
+  if (britishAny) return britishAny;
+
+  const englishFemale = voices.find(v => /en-|English/i.test(v.lang) && femaleHints.test(`${v.name} ${v.voiceURI}`));
+  if (englishFemale) return englishFemale;
+
   return voices.find(v => /en-|English/i.test(v.lang)) || voices[0];
 }
 if (synth) {
@@ -183,7 +195,8 @@ function speak(line){
 
   const u = new SpeechSynthesisUtterance(String(line));
   u.voice = VOICE;
-  u.rate = 0.95;
+  // Calm, authoritative news-reader delivery.
+  u.rate = 0.9;
   u.pitch = 1.0;
   try { synth.speak(u); } catch(_) {}
 }
