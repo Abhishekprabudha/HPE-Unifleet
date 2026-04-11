@@ -169,6 +169,7 @@
 
   <script>
     const narrationText = "Today’s supply chains face constant disruption — from ocean route volatility to last-mile congestion and unpredictable demand spikes. UniFleet addresses this with an agentic twin planner that analyzes, simulates, and optimizes logistics decisions in real time. Powered by HPE infrastructure — including HPE Private Cloud AI, HPE Data Fabric, and GreenLake — UniFleet unifies data from fleets, warehouses, and enterprise systems into a live operational graph. The platform predicts demand surges with over 92% accuracy, autonomously reroutes disruptions within seconds, and continuously learns from outcomes. The result is a resilient, self-optimizing supply chain capable of running thousands of simulations every week while keeping network uptime above 99%. UniFleet and HPE together bring autonomous intelligence to global supply chain planning.";
+    const narrationSpeechText = narrationText.replace(/\bHPE\b/g, 'H.P.E');
 
     const narrationEl = document.getElementById('narration');
     const btnReplay = document.getElementById('btnReplay');
@@ -198,7 +199,7 @@
       if (!('speechSynthesis' in window)) return;
       window.speechSynthesis.cancel();
       if (muted) return;
-      const utter = new SpeechSynthesisUtterance(narrationText);
+      const utter = new SpeechSynthesisUtterance(narrationSpeechText);
       utter.rate = 0.95;
       utter.pitch = 1;
       utter.lang = 'en-US';
