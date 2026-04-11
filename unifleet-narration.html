@@ -94,6 +94,18 @@
       background:rgba(8,18,41,.55);
       line-height:1.45;
       font-size:18px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      overflow:hidden;
+    }
+    .narration-video{
+      width:100%;
+      max-width:100%;
+      max-height:var(--narration-max-height, 360px);
+      object-fit:contain;
+      border-radius:10px;
+      background:#000;
     }
     .cursor{ display:inline-block; width:10px; animation:blinkCaret .8s steps(1) infinite; }
     .metrics{
@@ -176,23 +188,38 @@
     const btnMute = document.getElementById('btnMute');
 
     let muted = false;
-    let typeTimer = null;
+    let narrationVideo = null;
 
-    function typeNarration(text, speed = 24){
-      clearInterval(typeTimer);
-      narrationEl.textContent = '';
-      let i = 0;
-      typeTimer = setInterval(() => {
-        i += 1;
-        narrationEl.textContent = text.slice(0, i);
-        if (i >= text.length){
-          clearInterval(typeTimer);
-          const caret = document.createElement('span');
-          caret.className = 'cursor';
-          caret.textContent = '▌';
-          narrationEl.appendChild(caret);
-        }
-      }, speed);
+    function measureNarrationMaxHeight(){
+      const probe = document.createElement('div');
+      probe.style.visibility = 'hidden';
+      probe.style.position = 'absolute';
+      probe.style.inset = '0 auto auto 0';
+      probe.style.width = `${narrationEl.clientWidth || narrationEl.offsetWidth}px`;
+      probe.style.lineHeight = '1.45';
+      probe.style.fontSize = '18px';
+      probe.style.whiteSpace = 'normal';
+      probe.style.pointerEvents = 'none';
+      probe.textContent = narrationText;
+      narrationEl.appendChild(probe);
+      const measured = Math.max(138, Math.ceil(probe.scrollHeight + 32));
+      probe.remove();
+      narrationEl.style.setProperty('--narration-max-height', `${measured}px`);
+    }
+
+    function showNarrationVideo(){
+      if (!narrationVideo){
+        narrationVideo = document.createElement('video');
+        narrationVideo.className = 'narration-video';
+        narrationVideo.src = 'Global Airlines.mp4';
+        narrationVideo.preload = 'auto';
+        narrationVideo.playsInline = true;
+        narrationVideo.controls = false;
+        narrationVideo.setAttribute('aria-label', 'Global Airlines narration video');
+      }
+      narrationEl.replaceChildren(narrationVideo);
+      narrationVideo.currentTime = 0;
+      narrationVideo.play().catch(() => {});
     }
 
     function speakNarration(){
@@ -210,7 +237,7 @@
     }
 
     function replay(){
-      typeNarration(narrationText);
+      showNarrationVideo();
       speakNarration();
     }
 
@@ -266,6 +293,8 @@
     }
 
     addNetworkVisuals();
+    measureNarrationMaxHeight();
+    window.addEventListener('resize', measureNarrationMaxHeight);
     setTimeout(replay, 450);
   </script>
 </body>
