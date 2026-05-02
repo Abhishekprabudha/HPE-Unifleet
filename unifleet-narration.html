@@ -119,6 +119,10 @@
       overflow:auto;
       padding-right:6px;
     }
+    .narration-audio{
+      width:100%;
+      margin-top:10px;
+    }
     .narration-video{
       width:100%;
       max-width:100%;
@@ -183,7 +187,7 @@
 
     <main class="panel">
       <h1>What is UniFleet?</h1>
-      <p class="sub">An AI Agent autonomously plans and executes supply chain powered by HPE.</p>
+      <p class="sub">A warm, human-style narration of UniFleet autonomous supply chain planning powered by HPE.</p>
       <section class="narration-box" id="narration"></section>
 
       <section class="metrics">
@@ -244,6 +248,7 @@
     const narrationText = currentView.narrationText;
     const narrationGreetingText = "Hello Everyone, Welcome.";
     const narrationSpeechText = `${narrationGreetingText} ${narrationText}`.replace(/\bHPE\b/g, 'H P E');
+    const NARRATION_MP3 = 'audio/unifleet-complete-narration.mp3';
 
     const narrationEl = document.getElementById('narration');
     const btnReplay = document.getElementById('btnReplay');
@@ -338,66 +343,43 @@
       });
     }
 
-    let preferredVoice = null;
-    let pendingNarration = false;
-    function pickNarrationVoice(){
-      if (!('speechSynthesis' in window)) return null;
-      const voices = window.speechSynthesis.getVoices();
-      if (!voices.length) return null;
-      const femaleHints = /(female|woman|zira|hazel|susan|sophie|serena|libby|aria|emma|amy|samantha|victoria|ava|nova|fable|wavenet-c|wavenet-e|journey-f|neural2-f|en-us-standard-c|en-gb-standard-a|google uk english female)/i;
-      const maleHints = /(male|man|david|mark|daniel|george|james|alex|tom|fred|liam|ryan|arthur|wavenet-b|wavenet-d|journey-d|neural2-d|en-us-standard-d|en-gb-standard-b|google uk english male)/i;
-      return voices.find(v => /en-US|English/i.test(v.lang) && femaleHints.test(`${v.name} ${v.voiceURI}`))
-        || voices.find(v => /en-US|English/i.test(v.lang) && !maleHints.test(`${v.name} ${v.voiceURI}`))
-        || voices.find(v => /en-US|English/i.test(v.lang))
-        || voices[0];
-    }
+    let narrationAudio = null;
 
-    function speakNarration(){
-      if (!('speechSynthesis' in window)) return;
-      window.speechSynthesis.cancel();
-      if (muted) return;
-      if (!preferredVoice) preferredVoice = pickNarrationVoice();
-      if (!preferredVoice){
-        pendingNarration = true;
-        return;
-      }
-      const utter = new SpeechSynthesisUtterance(narrationSpeechText);
-      utter.rate = 0.95;
-      utter.pitch = 1;
-      utter.lang = 'en-US';
-      utter.voice = preferredVoice;
-      window.speechSynthesis.speak(utter);
-    }
-
-    if ('speechSynthesis' in window){
-      window.speechSynthesis.onvoiceschanged = () => {
-        if (!preferredVoice) preferredVoice = pickNarrationVoice();
-        if (pendingNarration && !muted){
-          pendingNarration = false;
-          speakNarration();
-        }
-      };
+    function ensureNarrationAudio(){
+      if (narrationAudio) return narrationAudio;
+      narrationAudio = document.createElement('audio');
+      narrationAudio.className = 'narration-audio';
+      narrationAudio.controls = true;
+      narrationAudio.preload = 'metadata';
+      narrationAudio.src = NARRATION_MP3;
+      narrationAudio.setAttribute('aria-label', 'Complete UniFleet narration in British female voice');
+      return narrationAudio;
     }
 
     function replay(){
       showNarrationVisual();
-      speakNarration();
+      const audio = ensureNarrationAudio();
+      if (!narrationLayout.contains(audio)) narrationLayout.appendChild(audio);
+      if (muted) return;
+      audio.currentTime = 0;
+      audio.play().catch(() => {});
     }
 
     btnReplay.addEventListener('click', replay);
     btnMute.addEventListener('click', () => {
       muted = !muted;
       btnMute.textContent = muted ? '🔈 Unmute' : '🔇 Mute';
-      if (muted) window.speechSynthesis?.cancel();
-      else speakNarration();
+      const audio = ensureNarrationAudio();
+      if (muted) audio.pause();
+      else audio.play().catch(() => {});
     });
     btnBackToNetwork.addEventListener('click', () => {
-      window.speechSynthesis?.cancel();
       narrationVisual?.pause?.();
+      narrationAudio?.pause?.();
     });
     window.addEventListener('pagehide', () => {
-      window.speechSynthesis?.cancel();
       narrationVisual?.pause?.();
+      narrationAudio?.pause?.();
     });
 
     function addNetworkVisuals(){
