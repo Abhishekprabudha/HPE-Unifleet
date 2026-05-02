@@ -15,12 +15,15 @@ out = Path('audio/unifleet-complete-narration.mp3')
 out.parent.mkdir(exist_ok=True)
 
 with tempfile.TemporaryDirectory() as td:
+    text_file = Path(td) / 'narration.txt'
     raw_mp3 = Path(td) / 'narration_raw.mp3'
+    text_file.write_text(all_text, encoding='utf-8')
+
     subprocess.check_call([
         'edge-tts',
         '--voice', 'en-GB-SoniaNeural',
-        '--rate', '-8%',
-        '--text', all_text,
+        '--rate=-8%',
+        '--file', str(text_file),
         '--write-media', str(raw_mp3)
     ])
     subprocess.check_call([
