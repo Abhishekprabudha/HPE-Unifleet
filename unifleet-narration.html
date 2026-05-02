@@ -256,6 +256,8 @@
     const btnBackToNetwork = document.getElementById('btnBackToNetwork');
 
     let muted = false;
+    const synth = window.speechSynthesis || null;
+    let fallbackNarrationEnabled = false;
     let narrationVisual = null;
     let narrationContent = null;
     let narrationLayout = null;
@@ -353,7 +355,18 @@
       narrationAudio.preload = 'metadata';
       narrationAudio.src = NARRATION_MP3;
       narrationAudio.setAttribute('aria-label', 'Complete UniFleet narration in British female voice');
+      narrationAudio.addEventListener('error', () => { fallbackNarrationEnabled = true; });
       return narrationAudio;
+    }
+
+    function speakFallbackNarration(){
+      if (!synth || muted) return;
+      try { synth.cancel(); } catch (_) {}
+      const utterance = new SpeechSynthesisUtterance(narrationSpeechText);
+      utterance.rate = 0.95;
+      utterance.pitch = 1;
+      utterance.lang = 'en-GB';
+      synth.speak(utterance);
     }
 
     function replay(){
@@ -362,7 +375,12 @@
       if (!narrationLayout.contains(audio)) narrationLayout.appendChild(audio);
       if (muted) return;
       audio.currentTime = 0;
-      audio.play().catch(() => {});
+      audio.play().then(() => {
+        fallbackNarrationEnabled = false;
+      }).catch(() => {
+        fallbackNarrationEnabled = true;
+        speakFallbackNarration();
+      });
     }
 
     btnReplay.addEventListener('click', replay);
@@ -370,16 +388,25 @@
       muted = !muted;
       btnMute.textContent = muted ? '🔈 Unmute' : '🔇 Mute';
       const audio = ensureNarrationAudio();
-      if (muted) audio.pause();
-      else audio.play().catch(() => {});
+      if (muted) {
+        audio.pause();
+        try { synth?.cancel(); } catch (_) {}
+      } else {
+        audio.play().catch(() => {
+          fallbackNarrationEnabled = true;
+          speakFallbackNarration();
+        });
+      }
     });
     btnBackToNetwork.addEventListener('click', () => {
       narrationVisual?.pause?.();
       narrationAudio?.pause?.();
+      try { synth?.cancel(); } catch (_) {}
     });
     window.addEventListener('pagehide', () => {
       narrationVisual?.pause?.();
       narrationAudio?.pause?.();
+      try { synth?.cancel(); } catch (_) {}
     });
 
     function addNetworkVisuals(){
