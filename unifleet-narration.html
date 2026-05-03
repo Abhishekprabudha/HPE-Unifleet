@@ -20,7 +20,7 @@
     body{
       font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
       color:var(--text);
-      overflow:auto;
+      overflow:hidden;
       background:
         radial-gradient(1100px 700px at 20% 12%, rgba(77,215,255,.14), transparent 60%),
         radial-gradient(900px 560px at 88% 32%, rgba(0,208,138,.10), transparent 60%),
@@ -86,13 +86,13 @@
       max-height:calc(100vh - 56px);
       display:flex;
       flex-direction:column;
-      overflow:auto;
+      overflow:hidden;
     }
     h1{ margin:0 0 8px; font-size:clamp(30px,4vw,44px); letter-spacing:.2px; }
     .sub{ color:var(--muted); margin:0 0 18px; font-size:15px; }
     .narration-box{
       min-height:138px;
-      transition:min-height .45s ease, padding .45s ease;
+      transition:min-height .95s cubic-bezier(.22,1,.36,1), padding .95s cubic-bezier(.22,1,.36,1), border-color .45s ease, background .45s ease;
       border:1px solid rgba(255,255,255,.15);
       border-radius:14px;
       padding:16px;
@@ -102,14 +102,16 @@
       display:flex;
       align-items:center;
       justify-content:center;
-      overflow:auto;
+      overflow:hidden;
     }
     .narration-layout{
       width:100%;
+      height:100%;
       display:grid;
       grid-template-columns:minmax(320px, 46%) minmax(0,1fr);
       align-items:center;
       gap:16px;
+      transition:grid-template-columns .9s cubic-bezier(.22,1,.36,1), gap .9s cubic-bezier(.22,1,.36,1);
     }
     .narration-content{
       font-size:16px;
@@ -117,8 +119,9 @@
       line-height:1.5;
       text-align:left;
       max-height:var(--narration-max-height, 360px);
-      overflow:auto;
+      overflow:hidden;
       padding-right:6px;
+      transition:opacity .65s ease, transform .65s cubic-bezier(.22,1,.36,1);
     }
     .narration-video{
       width:100%;
@@ -128,6 +131,13 @@
       border-radius:10px;
       background:#000;
       justify-self:start;
+      display:block;
+      border:0;
+      outline:none;
+      transform:translateZ(0);
+      backface-visibility:hidden;
+      clip-path:inset(1px round 10px);
+      transition:transform .95s cubic-bezier(.22,1,.36,1), max-height .95s cubic-bezier(.22,1,.36,1), opacity .55s ease;
     }
     .narration-box.media-focus{
       align-items:stretch;
@@ -139,7 +149,9 @@
       height:100%;
     }
     .narration-box.media-focus .narration-content{
-      display:none;
+      opacity:0;
+      transform:translateX(-12px);
+      pointer-events:none;
     }
     .narration-box.media-focus .narration-video{
       width:100%;
@@ -148,6 +160,7 @@
       object-fit:contain;
       justify-self:stretch;
       align-self:stretch;
+      transform:scale(1.01);
     }
     .cursor{ display:inline-block; width:10px; animation:blinkCaret .8s steps(1) infinite; }
     .metrics{
