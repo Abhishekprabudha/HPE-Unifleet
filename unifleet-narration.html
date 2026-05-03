@@ -120,7 +120,9 @@
       line-height:1.5;
       text-align:left;
       max-height:var(--narration-max-height, 360px);
-      overflow:hidden;
+      overflow-y:auto;
+      overflow-x:hidden;
+      scrollbar-gutter:stable;
       padding-right:6px;
       transition:opacity .65s ease, transform .65s cubic-bezier(.22,1,.36,1);
     }
