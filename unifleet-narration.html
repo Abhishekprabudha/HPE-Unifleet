@@ -92,6 +92,7 @@
     .sub{ color:var(--muted); margin:0 0 18px; font-size:15px; }
     .narration-box{
       min-height:138px;
+      height:var(--narration-max-height, 360px);
       border:1px solid rgba(255,255,255,.15);
       border-radius:14px;
       padding:16px;
@@ -143,6 +144,34 @@
     }
     .narration-layout.narrating .narration-content{
       opacity:1;
+    }
+    
+    .narration-box.narrating-full{
+      padding:0;
+      overflow:hidden;
+    }
+    .narration-box.narrating-full .narration-layout{
+      grid-template-columns:1fr;
+      gap:0;
+      height:100%;
+    }
+    .narration-box.narrating-full .narration-content{
+      display:none;
+    }
+    .narration-box.narrating-full .narration-visual-wrap{
+      width:100%;
+      height:100%;
+      border-radius:0;
+      transform:none;
+      box-shadow:none;
+      filter:none;
+    }
+    .narration-box.narrating-full .narration-video{
+      width:100%;
+      height:100%;
+      max-height:none;
+      object-fit:cover;
+      border-radius:0;
     }
     .narration-box.spotlight-all{
       box-shadow:0 0 0 2px rgba(77,215,255,.45), 0 0 32px rgba(77,215,255,.35);
@@ -371,6 +400,7 @@
       narrationVisualWrap?.classList.toggle('spotlight', active);
       narrationLayout?.classList.toggle('narrating', active);
       narrationEl?.classList.toggle('spotlight-all', active);
+      narrationEl?.classList.toggle('narrating-full', active);
     }
 
     function speakFallbackNarration(){
