@@ -103,6 +103,7 @@
       align-items:center;
       justify-content:center;
       overflow:hidden;
+      overscroll-behavior:contain;
     }
     .narration-layout{
       width:100%;
@@ -187,6 +188,8 @@
     
     .panel.media-expanded .narration-box{
       min-height:clamp(360px, 62vh, 680px);
+      overflow:auto;
+      scrollbar-gutter:stable both-edges;
     }
     .panel.media-expanded .metrics{
       opacity:0;
@@ -382,16 +385,23 @@
       }
     }
 
-    function scheduleNarrationMediaFocus(){
-      clearEnlargeTimers();
-      narrationEl.classList.remove('media-focus');
-      panelEl?.classList.remove('media-expanded');
-      enlargeStartTimer = setTimeout(() => {
+    function setMediaExpanded(expanded){
+      if (expanded){
         narrationEl.classList.add('media-focus');
         panelEl?.classList.add('media-expanded');
+      } else {
+        narrationEl.classList.remove('media-focus');
+        panelEl?.classList.remove('media-expanded');
+      }
+    }
+
+    function scheduleNarrationMediaFocus(){
+      clearEnlargeTimers();
+      setMediaExpanded(false);
+      enlargeStartTimer = setTimeout(() => {
+        setMediaExpanded(true);
         enlargeEndTimer = setTimeout(() => {
-          narrationEl.classList.remove('media-focus');
-          panelEl?.classList.remove('media-expanded');
+          setMediaExpanded(false);
           enlargeEndTimer = null;
         }, 60000);
         enlargeStartTimer = null;
@@ -449,15 +459,13 @@
     });
     btnBackToNetwork.addEventListener('click', () => {
       clearEnlargeTimers();
-      narrationEl.classList.remove('media-focus');
-      panelEl?.classList.remove('media-expanded');
+      setMediaExpanded(false);
       narrationVisual?.pause?.();
       try { synth?.cancel(); } catch (_) {}
     });
     window.addEventListener('pagehide', () => {
       clearEnlargeTimers();
-      narrationEl.classList.remove('media-focus');
-      panelEl?.classList.remove('media-expanded');
+      setMediaExpanded(false);
       narrationVisual?.pause?.();
       try { synth?.cancel(); } catch (_) {}
     });
