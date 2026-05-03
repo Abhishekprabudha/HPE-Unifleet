@@ -141,8 +141,9 @@
     }
     .narration-visual-wrap{
       position:relative;
-      width:min(90vw,1200px);
-      height:min(78vh,680px);
+      width:min(92vw,1280px);
+      height:min(78vh,760px);
+      max-height:calc(100vh - 150px);
       margin:auto;
       border-radius:12px;
       transition:transform .4s ease, box-shadow .4s ease, filter .4s ease, opacity .35s ease;
@@ -172,8 +173,9 @@
       display:none;
     }
     .narration-box.narrating-full .narration-visual-wrap{
-      width:min(92vw,1280px);
-      height:min(82vh,760px);
+      width:min(96vw,1400px);
+      height:min(86vh,860px);
+      max-height:calc(100vh - 80px);
       border-radius:0;
       transform:none;
       box-shadow:none;
@@ -184,6 +186,7 @@
       height:100%;
       max-height:none;
       object-fit:contain;
+      object-position:center;
       border-radius:0;
     }
     .narration-box.spotlight-all{
@@ -453,6 +456,11 @@
       setNarrationSpotlight(false);
     }
 
+    function stopNarrationAndMinimize(){
+      try { synth?.cancel(); } catch (_) {}
+      minimizeNarrationVisual();
+    }
+
     function scheduleSpotlightRestore(durationMs){
       if (restoreTimer) clearTimeout(restoreTimer);
       const restoreBeforeEndMs = 1200;
@@ -492,8 +500,7 @@
       muted = !muted;
       btnMute.textContent = muted ? '🔈 Unmute' : '🔇 Mute';
       if (muted) {
-        try { synth?.cancel(); } catch (_) {}
-        minimizeNarrationVisual();
+        stopNarrationAndMinimize();
       } else {
         fallbackNarrationEnabled = true;
         speakFallbackNarration();
@@ -501,19 +508,20 @@
     });
     btnBackToNetwork.addEventListener('click', () => {
       narrationVisual?.pause?.();
-      try { synth?.cancel(); } catch (_) {}
-      minimizeNarrationVisual();
+      stopNarrationAndMinimize();
     });
     window.addEventListener('pagehide', () => {
       narrationVisual?.pause?.();
-      try { synth?.cancel(); } catch (_) {}
-      minimizeNarrationVisual();
+      stopNarrationAndMinimize();
     });
-    document.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape') {
-        minimizeNarrationVisual();
+    function handleEscape(event){
+      if (event.key === 'Escape' || event.code === 'Escape') {
+        stopNarrationAndMinimize();
       }
-    });
+    }
+
+    document.addEventListener('keydown', handleEscape);
+    window.addEventListener('keydown', handleEscape);
 
 
     function addNetworkVisuals(){
