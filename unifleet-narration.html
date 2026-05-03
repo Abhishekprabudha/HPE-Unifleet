@@ -128,6 +128,22 @@
       background:#000;
       justify-self:start;
     }
+    .narration-visual-wrap{
+      position:relative;
+      border-radius:12px;
+      transition:transform .4s ease, box-shadow .4s ease, filter .4s ease, opacity .35s ease;
+      transform:scale(1);
+      filter:saturate(1);
+    }
+    .narration-visual-wrap.spotlight{
+      transform:scale(1.06);
+      box-shadow:0 0 0 2px rgba(77,215,255,.55), 0 0 28px rgba(77,215,255,.45);
+      filter:saturate(1.08) brightness(1.06);
+      z-index:2;
+    }
+    .narration-layout.narrating .narration-content{
+      opacity:.72;
+    }
     .cursor{ display:inline-block; width:10px; animation:blinkCaret .8s steps(1) infinite; }
     .metrics{
       margin-top:16px;
@@ -256,6 +272,7 @@
     let narrationVisual = null;
     let narrationContent = null;
     let narrationLayout = null;
+    let narrationVisualWrap = null;
 
     function measureNarrationMaxHeight(){
       const probe = document.createElement('div');
@@ -308,7 +325,12 @@
         narrationLayout = document.createElement('div');
         narrationLayout.className = 'narration-layout';
       }
-      narrationLayout.replaceChildren(narrationVisual, narrationContent);
+      if (!narrationVisualWrap){
+        narrationVisualWrap = document.createElement('div');
+        narrationVisualWrap.className = 'narration-visual-wrap';
+      }
+      narrationVisualWrap.replaceChildren(narrationVisual);
+      narrationLayout.replaceChildren(narrationVisualWrap, narrationContent);
       narrationEl.replaceChildren(narrationLayout);
       if (narrationVisual instanceof HTMLVideoElement){
         narrationVisual.currentTime = 0;
@@ -341,6 +363,11 @@
     }
 
 
+    function setNarrationSpotlight(active){
+      narrationVisualWrap?.classList.toggle('spotlight', active);
+      narrationLayout?.classList.toggle('narrating', active);
+    }
+
     function speakFallbackNarration(){
       if (!synth || muted) return;
       try { synth.cancel(); } catch (_) {}
@@ -348,11 +375,15 @@
       utterance.rate = 0.95;
       utterance.pitch = 1;
       utterance.lang = 'en-GB';
+      utterance.onstart = () => setNarrationSpotlight(true);
+      utterance.onend = () => setNarrationSpotlight(false);
+      utterance.onerror = () => setNarrationSpotlight(false);
       synth.speak(utterance);
     }
 
     function replay(){
       showNarrationVisual();
+      setNarrationSpotlight(false);
       if (muted) return;
       fallbackNarrationEnabled = true;
       speakFallbackNarration();
@@ -364,6 +395,7 @@
       btnMute.textContent = muted ? '🔈 Unmute' : '🔇 Mute';
       if (muted) {
         try { synth?.cancel(); } catch (_) {}
+        setNarrationSpotlight(false);
       } else {
         fallbackNarrationEnabled = true;
         speakFallbackNarration();
@@ -372,10 +404,12 @@
     btnBackToNetwork.addEventListener('click', () => {
       narrationVisual?.pause?.();
       try { synth?.cancel(); } catch (_) {}
+      setNarrationSpotlight(false);
     });
     window.addEventListener('pagehide', () => {
       narrationVisual?.pause?.();
       try { synth?.cancel(); } catch (_) {}
+      setNarrationSpotlight(false);
     });
 
     function addNetworkVisuals(){
