@@ -75,43 +75,40 @@
     .panel{
       position:relative;
       z-index:3;
-      width:100vw;
-      height:100vh;
-      margin:0;
-      padding:0;
-      border-radius:0;
-      border:0;
-      background:transparent;
-      box-shadow:none;
-      backdrop-filter:none;
+      width:min(980px, calc(100% - 40px));
+      margin:28px auto;
+      padding:22px;
+      border-radius:22px;
+      border:1px solid var(--stroke);
+      background:linear-gradient(180deg, rgba(255,255,255,.13), rgba(255,255,255,.06));
+      box-shadow:var(--shadow);
+      backdrop-filter:blur(12px);
+      max-height:calc(100vh - 56px);
       display:flex;
       flex-direction:column;
-      overflow:hidden;
+      overflow:auto;
     }
     h1{ margin:0 0 8px; font-size:clamp(30px,4vw,44px); letter-spacing:.2px; }
     .sub{ color:var(--muted); margin:0 0 18px; font-size:15px; }
     .narration-box{
-      position:relative;
-      min-height:100%;
-      height:100%;
-      border:0;
-      border-radius:0;
-      padding:0;
-      background:transparent;
+      min-height:138px;
+      border:1px solid rgba(255,255,255,.15);
+      border-radius:14px;
+      padding:16px;
+      background:rgba(8,18,41,.55);
       line-height:1.45;
       font-size:18px;
       display:flex;
-      align-items:stretch;
-      justify-content:stretch;
-      overflow:hidden;
+      align-items:center;
+      justify-content:center;
+      overflow:auto;
     }
     .narration-layout{
       width:100%;
-      height:100%;
       display:grid;
-      grid-template-columns:1fr;
-      align-items:stretch;
-      gap:0;
+      grid-template-columns:minmax(320px, 46%) minmax(0,1fr);
+      align-items:center;
+      gap:16px;
     }
     .narration-content{
       font-size:16px;
@@ -124,97 +121,13 @@
     }
     .narration-video{
       width:100%;
-      height:100%;
-      max-width:none;
-      max-height:none;
+      max-width:100%;
+      max-height:var(--narration-max-height, 360px);
       object-fit:contain;
-      border-radius:0;
+      border-radius:10px;
       background:#000;
-      justify-self:stretch;
+      justify-self:start;
     }
-    .panel h1,
-    .panel .sub,
-    .panel .metrics,
-    .panel .actions,
-    .panel .narration-content{
-      display:none !important;
-    }
-    .narration-visual-wrap{
-      position:relative;
-      width:min(92vw,1280px);
-      height:min(78vh,760px);
-      max-height:calc(100vh - 150px);
-      margin:auto;
-      border-radius:12px;
-      transition:transform .4s ease, box-shadow .4s ease, filter .4s ease, opacity .35s ease;
-      transform:scale(1);
-      filter:saturate(1);
-    }
-    .narration-visual-wrap.spotlight{
-      transform:scale(1.06);
-      box-shadow:0 0 0 2px rgba(77,215,255,.55), 0 0 28px rgba(77,215,255,.45);
-      filter:saturate(1.08) brightness(1.06);
-      z-index:2;
-    }
-    .narration-layout.narrating .narration-content{
-      opacity:1;
-    }
-    
-    .narration-box.narrating-full{
-      padding:0;
-      overflow:hidden;
-    }
-    .narration-box.narrating-full .narration-layout{
-      grid-template-columns:1fr;
-      gap:0;
-      height:100%;
-    }
-    .narration-box.narrating-full .narration-content{
-      display:none;
-    }
-    .narration-box.narrating-full .narration-visual-wrap{
-      width:min(96vw,1400px);
-      height:min(86vh,860px);
-      max-height:calc(100vh - 80px);
-      border-radius:0;
-      transform:none;
-      box-shadow:none;
-      filter:none;
-    }
-    .narration-box.narrating-full .narration-video{
-      width:100%;
-      height:100%;
-      max-height:none;
-      object-fit:contain;
-      object-position:center;
-      border-radius:0;
-    }
-    .narration-box.spotlight-all{
-      box-shadow:0 0 0 2px rgba(77,215,255,.45), 0 0 32px rgba(77,215,255,.35);
-      transition:box-shadow .35s ease;
-    }
-    
-    .fullscreen-hint{
-      position:absolute;
-      right:16px;
-      bottom:16px;
-      z-index:4;
-      font:700 12px/1 system-ui;
-      color:var(--text);
-      border:1px solid rgba(255,255,255,.2);
-      background:rgba(0,0,0,.38);
-      border-radius:999px;
-      padding:8px 10px;
-      opacity:0;
-      transform:translateY(6px);
-      transition:opacity .25s ease, transform .25s ease;
-      pointer-events:none;
-    }
-    .narration-box.narrating-full .fullscreen-hint{
-      opacity:1;
-      transform:translateY(0);
-    }
-
     .cursor{ display:inline-block; width:10px; animation:blinkCaret .8s steps(1) infinite; }
     .metrics{
       margin-top:16px;
@@ -343,9 +256,6 @@
     let narrationVisual = null;
     let narrationContent = null;
     let narrationLayout = null;
-    let narrationVisualWrap = null;
-    let narrationHint = null;
-    let restoreTimer = null;
 
     function measureNarrationMaxHeight(){
       const probe = document.createElement('div');
@@ -398,18 +308,8 @@
         narrationLayout = document.createElement('div');
         narrationLayout.className = 'narration-layout';
       }
-      if (!narrationVisualWrap){
-        narrationVisualWrap = document.createElement('div');
-        narrationVisualWrap.className = 'narration-visual-wrap';
-      }
-      narrationVisualWrap.replaceChildren(narrationVisual);
-      if (!narrationHint){
-        narrationHint = document.createElement('div');
-        narrationHint.className = 'fullscreen-hint';
-        narrationHint.textContent = 'Press Esc to minimize';
-      }
-      narrationLayout.replaceChildren(narrationVisualWrap, narrationContent);
-      narrationEl.replaceChildren(narrationLayout, narrationHint);
+      narrationLayout.replaceChildren(narrationVisual, narrationContent);
+      narrationEl.replaceChildren(narrationLayout);
       if (narrationVisual instanceof HTMLVideoElement){
         narrationVisual.currentTime = 0;
         narrationVisual.load();
@@ -441,36 +341,6 @@
     }
 
 
-    function setNarrationSpotlight(active){
-      narrationVisualWrap?.classList.toggle('spotlight', active);
-      narrationLayout?.classList.toggle('narrating', active);
-      narrationEl?.classList.toggle('spotlight-all', active);
-      narrationEl?.classList.toggle('narrating-full', active);
-    }
-
-    function minimizeNarrationVisual(){
-      if (restoreTimer){
-        clearTimeout(restoreTimer);
-        restoreTimer = null;
-      }
-      setNarrationSpotlight(false);
-    }
-
-    function stopNarrationAndMinimize(){
-      try { synth?.cancel(); } catch (_) {}
-      minimizeNarrationVisual();
-    }
-
-    function scheduleSpotlightRestore(durationMs){
-      if (restoreTimer) clearTimeout(restoreTimer);
-      const restoreBeforeEndMs = 1200;
-      const timeout = Math.max(400, durationMs - restoreBeforeEndMs);
-      restoreTimer = setTimeout(() => {
-        minimizeNarrationVisual();
-        restoreTimer = null;
-      }, timeout);
-    }
-
     function speakFallbackNarration(){
       if (!synth || muted) return;
       try { synth.cancel(); } catch (_) {}
@@ -478,18 +348,11 @@
       utterance.rate = 0.95;
       utterance.pitch = 1;
       utterance.lang = 'en-GB';
-      utterance.onstart = () => {
-        setNarrationSpotlight(true);
-        scheduleSpotlightRestore(utterance.text.length * 68);
-      };
-      utterance.onend = () => minimizeNarrationVisual();
-      utterance.onerror = () => minimizeNarrationVisual();
       synth.speak(utterance);
     }
 
     function replay(){
       showNarrationVisual();
-      minimizeNarrationVisual();
       if (muted) return;
       fallbackNarrationEnabled = true;
       speakFallbackNarration();
@@ -500,7 +363,7 @@
       muted = !muted;
       btnMute.textContent = muted ? '🔈 Unmute' : '🔇 Mute';
       if (muted) {
-        stopNarrationAndMinimize();
+        try { synth?.cancel(); } catch (_) {}
       } else {
         fallbackNarrationEnabled = true;
         speakFallbackNarration();
@@ -508,21 +371,12 @@
     });
     btnBackToNetwork.addEventListener('click', () => {
       narrationVisual?.pause?.();
-      stopNarrationAndMinimize();
+      try { synth?.cancel(); } catch (_) {}
     });
     window.addEventListener('pagehide', () => {
       narrationVisual?.pause?.();
-      stopNarrationAndMinimize();
+      try { synth?.cancel(); } catch (_) {}
     });
-    function handleEscape(event){
-      if (event.key === 'Escape' || event.code === 'Escape') {
-        stopNarrationAndMinimize();
-      }
-    }
-
-    document.addEventListener('keydown', handleEscape);
-    window.addEventListener('keydown', handleEscape);
-
 
     function addNetworkVisuals(){
       const net = document.getElementById('network');
