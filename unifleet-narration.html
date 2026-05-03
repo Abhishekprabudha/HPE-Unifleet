@@ -142,7 +142,11 @@
       z-index:2;
     }
     .narration-layout.narrating .narration-content{
-      opacity:.72;
+      opacity:1;
+    }
+    .narration-box.spotlight-all{
+      box-shadow:0 0 0 2px rgba(77,215,255,.45), 0 0 32px rgba(77,215,255,.35);
+      transition:box-shadow .35s ease;
     }
     .cursor{ display:inline-block; width:10px; animation:blinkCaret .8s steps(1) infinite; }
     .metrics{
@@ -366,6 +370,7 @@
     function setNarrationSpotlight(active){
       narrationVisualWrap?.classList.toggle('spotlight', active);
       narrationLayout?.classList.toggle('narrating', active);
+      narrationEl?.classList.toggle('spotlight-all', active);
     }
 
     function speakFallbackNarration(){
