@@ -119,10 +119,6 @@
       overflow:auto;
       padding-right:6px;
     }
-    .narration-audio{
-      width:100%;
-      margin-top:10px;
-    }
     .narration-video{
       width:100%;
       max-width:100%;
@@ -248,7 +244,6 @@
     const narrationText = currentView.narrationText;
     const narrationGreetingText = "Hello Everyone, Welcome.";
     const narrationSpeechText = `${narrationGreetingText} ${narrationText}`.replace(/\bHPE\b/g, 'H P E');
-    const NARRATION_MP3 = 'audio/unifleet-complete-narration.mp3';
 
     const narrationEl = document.getElementById('narration');
     const btnReplay = document.getElementById('btnReplay');
@@ -345,19 +340,6 @@
       });
     }
 
-    let narrationAudio = null;
-
-    function ensureNarrationAudio(){
-      if (narrationAudio) return narrationAudio;
-      narrationAudio = document.createElement('audio');
-      narrationAudio.className = 'narration-audio';
-      narrationAudio.controls = true;
-      narrationAudio.preload = 'metadata';
-      narrationAudio.src = NARRATION_MP3;
-      narrationAudio.setAttribute('aria-label', 'Complete UniFleet narration in British female voice');
-      narrationAudio.addEventListener('error', () => { fallbackNarrationEnabled = true; });
-      return narrationAudio;
-    }
 
     function speakFallbackNarration(){
       if (!synth || muted) return;
@@ -371,41 +353,28 @@
 
     function replay(){
       showNarrationVisual();
-      const audio = ensureNarrationAudio();
-      if (!narrationLayout.contains(audio)) narrationLayout.appendChild(audio);
       if (muted) return;
-      audio.currentTime = 0;
-      audio.play().then(() => {
-        fallbackNarrationEnabled = false;
-      }).catch(() => {
-        fallbackNarrationEnabled = true;
-        speakFallbackNarration();
-      });
+      fallbackNarrationEnabled = true;
+      speakFallbackNarration();
     }
 
     btnReplay.addEventListener('click', replay);
     btnMute.addEventListener('click', () => {
       muted = !muted;
       btnMute.textContent = muted ? '🔈 Unmute' : '🔇 Mute';
-      const audio = ensureNarrationAudio();
       if (muted) {
-        audio.pause();
         try { synth?.cancel(); } catch (_) {}
       } else {
-        audio.play().catch(() => {
-          fallbackNarrationEnabled = true;
-          speakFallbackNarration();
-        });
+        fallbackNarrationEnabled = true;
+        speakFallbackNarration();
       }
     });
     btnBackToNetwork.addEventListener('click', () => {
       narrationVisual?.pause?.();
-      narrationAudio?.pause?.();
       try { synth?.cancel(); } catch (_) {}
     });
     window.addEventListener('pagehide', () => {
       narrationVisual?.pause?.();
-      narrationAudio?.pause?.();
       try { synth?.cancel(); } catch (_) {}
     });
 
