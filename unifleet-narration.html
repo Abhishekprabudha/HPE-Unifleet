@@ -92,6 +92,7 @@
     .sub{ color:var(--muted); margin:0 0 18px; font-size:15px; }
     .narration-box{
       min-height:138px;
+      transition:min-height .45s ease, padding .45s ease;
       border:1px solid rgba(255,255,255,.15);
       border-radius:14px;
       padding:16px;
@@ -151,6 +152,7 @@
     .cursor{ display:inline-block; width:10px; animation:blinkCaret .8s steps(1) infinite; }
     .metrics{
       margin-top:16px;
+      transition:opacity .35s ease, transform .35s ease;
       display:grid;
       grid-template-columns:repeat(4,minmax(130px,1fr));
       gap:10px;
@@ -169,6 +171,18 @@
     .card:nth-child(4){ animation-delay:.75s; }
     .label{ color:var(--muted); font-size:12px; text-transform:uppercase; letter-spacing:.8px; }
     .value{ font-size:24px; font-weight:900; margin-top:4px; }
+    
+    .panel.media-expanded .narration-box{
+      min-height:clamp(360px, 62vh, 680px);
+    }
+    .panel.media-expanded .metrics{
+      opacity:0;
+      transform:translateY(12px);
+      pointer-events:none;
+      max-height:0;
+      margin-top:0;
+      overflow:hidden;
+    }
     .actions{ margin-top:16px; display:flex; gap:10px; flex-wrap:wrap; position:sticky; bottom:0; padding-top:10px; background:linear-gradient(180deg, rgba(12,29,63,0), rgba(12,29,63,.9) 40%); }
     button,a{
       border:1px solid rgba(77,215,255,.45);
@@ -266,6 +280,7 @@
     const narrationSpeechText = `${narrationGreetingText} ${narrationText}`.replace(/\bHPE\b/g, 'H P E');
 
     const narrationEl = document.getElementById('narration');
+    const panelEl = document.querySelector('.panel');
     const btnReplay = document.getElementById('btnReplay');
     const btnMute = document.getElementById('btnMute');
     const btnBackToNetwork = document.getElementById('btnBackToNetwork');
@@ -357,10 +372,13 @@
     function scheduleNarrationMediaFocus(){
       clearEnlargeTimers();
       narrationEl.classList.remove('media-focus');
+      panelEl?.classList.remove('media-expanded');
       enlargeStartTimer = setTimeout(() => {
         narrationEl.classList.add('media-focus');
+        panelEl?.classList.add('media-expanded');
         enlargeEndTimer = setTimeout(() => {
           narrationEl.classList.remove('media-focus');
+          panelEl?.classList.remove('media-expanded');
           enlargeEndTimer = null;
         }, 60000);
         enlargeStartTimer = null;
@@ -419,12 +437,14 @@
     btnBackToNetwork.addEventListener('click', () => {
       clearEnlargeTimers();
       narrationEl.classList.remove('media-focus');
+      panelEl?.classList.remove('media-expanded');
       narrationVisual?.pause?.();
       try { synth?.cancel(); } catch (_) {}
     });
     window.addEventListener('pagehide', () => {
       clearEnlargeTimers();
       narrationEl.classList.remove('media-focus');
+      panelEl?.classList.remove('media-expanded');
       narrationVisual?.pause?.();
       try { synth?.cancel(); } catch (_) {}
     });
