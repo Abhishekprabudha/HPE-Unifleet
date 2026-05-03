@@ -128,6 +128,26 @@
       background:#000;
       justify-self:start;
     }
+    .narration-box.media-focus{
+      align-items:stretch;
+      justify-content:stretch;
+      padding:12px;
+    }
+    .narration-box.media-focus .narration-layout{
+      grid-template-columns:minmax(0,1fr);
+      height:100%;
+    }
+    .narration-box.media-focus .narration-content{
+      display:none;
+    }
+    .narration-box.media-focus .narration-video{
+      width:100%;
+      height:100%;
+      max-height:none;
+      object-fit:contain;
+      justify-self:stretch;
+      align-self:stretch;
+    }
     .cursor{ display:inline-block; width:10px; animation:blinkCaret .8s steps(1) infinite; }
     .metrics{
       margin-top:16px;
@@ -256,6 +276,8 @@
     let narrationVisual = null;
     let narrationContent = null;
     let narrationLayout = null;
+    let enlargeStartTimer = null;
+    let enlargeEndTimer = null;
 
     function measureNarrationMaxHeight(){
       const probe = document.createElement('div');
@@ -321,6 +343,30 @@
       }
     }
 
+    function clearEnlargeTimers(){
+      if (enlargeStartTimer){
+        clearTimeout(enlargeStartTimer);
+        enlargeStartTimer = null;
+      }
+      if (enlargeEndTimer){
+        clearTimeout(enlargeEndTimer);
+        enlargeEndTimer = null;
+      }
+    }
+
+    function scheduleNarrationMediaFocus(){
+      clearEnlargeTimers();
+      narrationEl.classList.remove('media-focus');
+      enlargeStartTimer = setTimeout(() => {
+        narrationEl.classList.add('media-focus');
+        enlargeEndTimer = setTimeout(() => {
+          narrationEl.classList.remove('media-focus');
+          enlargeEndTimer = null;
+        }, 60000);
+        enlargeStartTimer = null;
+      }, 5000);
+    }
+
     function updateActiveButtons(){
       const navButtons = [
         ['DataFlow', document.getElementById('btnDataFlow')],
@@ -353,6 +399,7 @@
 
     function replay(){
       showNarrationVisual();
+      scheduleNarrationMediaFocus();
       if (muted) return;
       fallbackNarrationEnabled = true;
       speakFallbackNarration();
@@ -370,10 +417,14 @@
       }
     });
     btnBackToNetwork.addEventListener('click', () => {
+      clearEnlargeTimers();
+      narrationEl.classList.remove('media-focus');
       narrationVisual?.pause?.();
       try { synth?.cancel(); } catch (_) {}
     });
     window.addEventListener('pagehide', () => {
+      clearEnlargeTimers();
+      narrationEl.classList.remove('media-focus');
       narrationVisual?.pause?.();
       try { synth?.cancel(); } catch (_) {}
     });
