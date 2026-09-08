@@ -65,9 +65,18 @@ const BASE_NODES = {
 
 /* ---------- Optional Cities ---------- */
 const OPTIONAL_CITIES = {
-  PAR: { name:"Paris",  lon:2.3522,  lat:48.8566 },
-  VIE: { name:"Vienna", lon:16.3738, lat:48.2082 }
+  SIN: { name:"Singapore",    lon:103.8198, lat:1.3521 },
+  KUL: { name:"Kuala Lumpur", lon:101.6869, lat:3.1390 }
 };
+
+/* Routes that integrate optional cities into nearby and long-haul corridors. */
+const OPTIONAL_CORRIDORS = [
+  ["SIN","HKG"],
+  ["SIN","DXB"],
+  ["KUL","DEL"],
+  ["KUL","DXB"],
+  ["SIN","KUL"]
+];
 
 const HUB = "DXB";
 
@@ -921,10 +930,15 @@ const COUNTRY_SCENARIOS = [
 
 /* ---------- Network application ---------- */
 function basePairsForMode(){
-  if (MODE === "hub"){
-    return buildPairsHubPlusSignature();
+  const pairs = MODE === "hub"
+    ? buildPairsHubPlusSignature()
+    : SIGNATURE_CORRIDORS_NORMAL.filter(([A,B]) => getNode(A) && getNode(B));
+
+  // Optional cities retain regional links in both normal and hub views.
+  for (const [A,B] of OPTIONAL_CORRIDORS){
+    if (currentNodes[A] && currentNodes[B]) pairs.push([A,B]);
   }
-  const pairs = SIGNATURE_CORRIDORS_NORMAL.filter(([A,B]) => getNode(A) && getNode(B));
+
   const seen = new Set();
   const out = [];
   for (const [A,B] of pairs){
@@ -1174,8 +1188,8 @@ document.getElementById('btnHub')?.addEventListener('click', ()=>setHubDubai());
 document.getElementById('btnDisruptRoutes')?.addEventListener('click', ()=>startDisruptRoutes());
 document.getElementById('btnDisruptCountries')?.addEventListener('click', ()=>startDisruptCountries());
 document.getElementById('btnCorrect')?.addEventListener('click', ()=>applyCorrect());
-document.getElementById('btnAddParis')?.addEventListener('click', ()=>addCity("PAR"));
-document.getElementById('btnAddVienna')?.addEventListener('click', ()=>addCity("VIE"));
+document.getElementById('btnAddSingapore')?.addEventListener('click', ()=>addCity("SIN"));
+document.getElementById('btnAddKualaLumpur')?.addEventListener('click', ()=>addCity("KUL"));
 
 function closeDisruptionMenus(){
   document.getElementById("menuDisruptRoutes")?.classList.remove("open");
