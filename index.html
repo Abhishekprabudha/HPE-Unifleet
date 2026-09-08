@@ -42,25 +42,26 @@
       top: 14px;
       left: 14px;
       display:flex;
-      gap: 10px;
+      align-items: center;
+      gap: 6px;
       z-index: 10;
-      padding: 10px;
-      border-radius: 18px;
+      padding: 7px;
+      border-radius: 16px;
       border: 1px solid var(--stroke);
-      background: linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.08));
-      box-shadow: 0 10px 28px rgba(0,0,0,.30);
-      backdrop-filter: blur(12px);
-      flex-wrap: wrap;
+      background: linear-gradient(180deg, rgba(18,31,58,.88), rgba(7,14,30,.82));
+      box-shadow: 0 12px 32px rgba(0,0,0,.34), inset 0 1px 0 rgba(255,255,255,.08);
+      backdrop-filter: blur(16px) saturate(140%);
+      flex-wrap: nowrap;
       max-width: calc(100% - 28px);
     }
     #ui button{
       background: rgba(255,255,255,.08);
       color: var(--text);
       border: 1px solid rgba(255,255,255,.16);
-      padding: 10px 12px;
-      border-radius: 14px;
+      padding: 9px 10px;
+      border-radius: 11px;
       cursor:pointer;
-      font: 800 13px/1 system-ui;
+      font: 800 12px/1 system-ui;
       letter-spacing:.2px;
       display:flex; gap:8px; align-items:center;
       user-select:none;
@@ -83,24 +84,24 @@
       position: relative;
       display: inline-flex;
       align-items: stretch;
-      border-radius: 14px;
+      border-radius: 11px;
       overflow: visible;
     }
     .split-btn > button{
       border-radius: 0;
     }
     .split-btn > button:first-child{
-      border-top-left-radius: 14px;
-      border-bottom-left-radius: 14px;
+      border-top-left-radius: 11px;
+      border-bottom-left-radius: 11px;
       border-right: 0;
     }
     .split-btn > .menu-toggle{
       min-width: 36px;
       justify-content: center;
-      border-top-right-radius: 14px;
-      border-bottom-right-radius: 14px;
+      border-top-right-radius: 11px;
+      border-bottom-right-radius: 11px;
       font-size: 11px;
-      padding: 10px 10px;
+      padding: 9px 8px;
     }
     .dropdown-menu{
       position: absolute;
@@ -241,8 +242,8 @@
       </div>
 
       <button id="btnCorrect" class="good">🟩 Correct</button>
-      <button id="btnAddSingapore">➕ Add Singapore</button>
-      <button id="btnAddKualaLumpur">➕ Add Kuala Lumpur</button>
+      <button id="btnAddSingapore">➕ Add SINA</button>
+      <button id="btnAddKualaLumpur">➕ Add KLIA</button>
       <button id="btnToggleStats">📊 Dashboard</button>
       <button id="btnMute">🔊 Narration</button>
     </div>
